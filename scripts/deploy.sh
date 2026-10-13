@@ -49,7 +49,7 @@ fi
 # 2. Move the running container aside instead of deleting it, so we can roll back.
 HAD_PREVIOUS=false
 docker rm -f "$BACKUP_NAME" >/dev/null 2>&1 || true
-if docker inspect "$APP_NAME" >/dev/null 2>&1; then
+if docker container inspect "$APP_NAME" >/dev/null 2>&1; then
   log "Stopping current container and keeping it as '$BACKUP_NAME'"
   docker stop --time 10 "$APP_NAME" >/dev/null
   docker rename "$APP_NAME" "$BACKUP_NAME"
@@ -83,8 +83,8 @@ docker run -d \
 log "Waiting for the container to report healthy"
 healthy=false
 for attempt in $(seq 1 "$HEALTH_RETRIES"); do
-  state="$(docker inspect -f '{{.State.Status}}' "$APP_NAME" 2>/dev/null || echo missing)"
-  health="$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "$APP_NAME" 2>/dev/null || echo none)"
+  state="$(docker container inspect -f '{{.State.Status}}' "$APP_NAME" 2>/dev/null || echo missing)"
+  health="$(docker container inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "$APP_NAME" 2>/dev/null || echo none)"
   if [ "$state" = "running" ] && { [ "$health" = "healthy" ] || [ "$health" = "none" ]; }; then
     healthy=true
     break
