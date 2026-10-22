@@ -88,6 +88,6 @@ jobs:
          kubectl rollout status deployment/demo-app -n devops-demo --timeout=120s
 
   on:
-  workflow_dispatch:
-  push:
-    branches: [ "main" ]       
+    workflow_dispatch:
+    push:
+      branches: [ "main" ]       
