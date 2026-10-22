@@ -70,26 +70,19 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Kubectl
-      uses: azure/setup-kubectl@v3
-
-    - name: Configure Kubeconfig
-      run: |
-        mkdir -p ~/.kube
-        echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
-        kubectl config set-cluster minikube --insecure-skip-tls-verify=true || true
-
-    - name: Deploy Manifests to Kubernetes
-      run: |
-        IMAGE_NAME="ghcr.io/${{ github.repository }}:sha-${{ github.sha }}"
-        sed -i "s|ghcr.io/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME:latest|${IMAGE_NAME}|g" k8s/deployment.yaml
-
+    - name: Deploy Manifests to Local Kubernetes
+      shell: powershell
+      run:  |
         kubectl apply -f k8s/namespace.yaml
         kubectl apply -f k8s/configmap.yaml
         kubectl apply -f k8s/secret.example.yaml
         kubectl apply -f k8s/deployment.yaml
         kubectl apply -f k8s/service.yaml
 
+        $image = "ghcr.io/$($env:GITHUB_REPOSITORY.ToLower()):sha-$env:GITHUB_SHA"
+        kubectl set image deployment/demo-app app=$image -n devops-demo
+
     - name: Verify Kubernetes Rollout
+      shell: powershell
       run: |
-        kubectl rollout status deployment/demo-app -n devops-demo --timeout=120s
+         kubectl rollout status deployment/demo-app -n devops-demo --timeout=120s
