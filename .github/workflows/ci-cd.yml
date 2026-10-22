@@ -34,7 +34,7 @@ jobs:
 
       - name: Run Unit Tests
         run: |
-          PYTHONPATH=CloudForge/app:CloudForge pytest CloudForge/tests/
+          PYTHONPATH=CloudForge pytest CloudForge/tests/
 
   sast-semgrep:
     needs: test
