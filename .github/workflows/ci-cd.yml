@@ -10,6 +10,7 @@ on:
 permissions:
   contents: read
   packages: write
+  security-events: write
 
 jobs:
   test:
@@ -23,24 +24,54 @@ jobs:
           python-version: '3.11'
 
       - name: Install Dependencies
-        working-directory: CloudForge
         run: |
           python -m pip install --upgrade pip
           pip install -r app/requirements.txt
 
       - name: Run Unit Tests
-        working-directory: CloudForge
         run: |
-          PYTHONPATH=. pytest tests/
+          PYTHONPATH=app pytest tests/
 
-  build-and-publish:
+  # 1. Static Application Security Testing (SAST)
+  sast-semgrep:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-    outputs:
-      image_tag: ${{ steps.meta.outputs.version }}
+    container:
+      image: semgrep/semgrep
     steps:
       - uses: actions/checkout@v4
+
+      - name: Run Semgrep SAST Scan
+        run: |
+          semgrep scan --config auto --error --exclude "tests"
+
+  # 2. Trivy Filesystem, Secret, and IaC/Kubernetes Scan
+  iac-secret-scan:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy Repo & Misconfig Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          scanners: 'vuln,secret,misconfig'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1' # Fails the pipeline if Critical/High flaws exist
+          ignore-unfixed: true
+
+  # 3. Build & Container Security Scan
+  build-and-publish:
+    needs: [sast-semgrep, iac-secret-scan]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -49,23 +80,32 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels)
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository }}
-          tags: |
-            type=sha,format=long
-            type=raw,value=latest
-
-      - name: Build and Push Docker Image
+      - name: Build Local Image for Vulnerability Scanning
         uses: docker/build-push-action@v5
         with:
-          context: CloudForge
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          context: .
+          load: true # Loads image into local docker daemon for Trivy scanning
+          tags: local-scan-target:${{ github.sha }}
 
+      - name: Run Trivy Container Image Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'local-scan-target:${{ github.sha }}'
+          format: 'table'
+          exit-code: '1' # Fails build if container image has Critical/High CVEs
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
+
+      - name: Push Verified Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
+            ghcr.io/${{ github.repository }}:latest
+
+  # 4. Local Deployment
   deploy:
     needs: build-and-publish
     runs-on: self-hosted
@@ -76,12 +116,12 @@ jobs:
       - name: Deploy Manifests to Local Kubernetes
         shell: powershell
         run: |
-          kubectl apply -f CloudForge/k8s/namespace.yaml
-          kubectl apply -f CloudForge/k8s/configmap.yaml
-          kubectl apply -f CloudForge/k8s/secret.example.yaml
-          kubectl apply -f CloudForge/k8s/deployment.yaml
-          kubectl apply -f CloudForge/k8s/service.yaml
-          kubectl apply -f CloudForge/k8s/ingress.yaml
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/configmap.yaml
+          kubectl apply -f k8s/secret.example.yaml
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+          kubectl apply -f k8s/ingress.yaml
 
           $image = "ghcr.io/$($env:GITHUB_REPOSITORY.ToLower()):sha-$env:GITHUB_SHA"
           kubectl set image deployment/demo-app app=$image -n devops-demo
