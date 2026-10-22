@@ -81,6 +81,7 @@ jobs:
           kubectl apply -f CloudForge/k8s/secret.example.yaml
           kubectl apply -f CloudForge/k8s/deployment.yaml
           kubectl apply -f CloudForge/k8s/service.yaml
+          kubectl apply -f CloudForge/k8s/ingress.yaml
 
           $image = "ghcr.io/$($env:GITHUB_REPOSITORY.ToLower()):sha-$env:GITHUB_SHA"
           kubectl set image deployment/demo-app app=$image -n devops-demo
