@@ -87,6 +87,8 @@ jobs:
         with:
           context: CloudForge
           load: true
+          provenance: false
+          sbom: false
           tags: local-scan-target:${{ github.sha }}
 
       - name: Run Trivy Container Image Scan
@@ -103,6 +105,8 @@ jobs:
         with:
           context: CloudForge
           push: true
+          provenance: false
+          sbom: false
           tags: |
             ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
             ghcr.io/${{ github.repository }}:latest
