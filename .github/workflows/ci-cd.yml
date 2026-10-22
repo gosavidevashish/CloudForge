@@ -85,6 +85,15 @@ jobs:
         run: |
           docker build --provenance=false --sbom=false -t local-scan-target:${{ github.sha }} CloudForge
 
+      - name: Create Trivy Ignore File
+        run: |
+          cat << 'EOF' > ${{ github.workspace }}/.trivyignore
+          GHSA-6v7p-g79w-8964
+          CVE-2025-47273
+          CVE-2026-97687
+          CVE-2026-97689
+          EOF
+
       - name: Run Trivy Container Image Scan
         uses: aquasecurity/trivy-action@master
         with:
@@ -93,11 +102,7 @@ jobs:
           exit-code: '1'
           ignore-unfixed: true
           severity: 'CRITICAL,HIGH'
-          trivyignores: |
-            GHSA-6v7p-g79w-8964
-            CVE-2025-47273
-            CVE-2026-97687
-            CVE-2026-97689
+          trivyignores: ${{ github.workspace }}/.trivyignore
 
       - name: Tag and Push Verified Docker Image
         run: |
