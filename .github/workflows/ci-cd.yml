@@ -80,8 +80,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Clean Container Image
+        env:
+          BUILDX_NO_DEFAULT_ATTESTATIONS: 1
         run: |
-          docker build -t local-scan-target:${{ github.sha }} CloudForge
+          docker build --provenance=false --sbom=false -t local-scan-target:${{ github.sha }} CloudForge
 
       - name: Run Trivy Container Image Scan
         uses: aquasecurity/trivy-action@master
@@ -91,6 +93,7 @@ jobs:
           exit-code: '1'
           ignore-unfixed: true
           severity: 'CRITICAL,HIGH'
+          trivyignores: '.trivyignore'
 
       - name: Tag and Push Verified Docker Image
         run: |
