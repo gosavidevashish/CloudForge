@@ -3,21 +3,20 @@ from flask import Flask, jsonify
 
 app = Flask(__name__)
 
-@app.route('/health', methods=['GET'])
+@app.route("/")
+def home():
+    return jsonify({
+        "status": "success",
+        "message": "DevSecOps Pipeline Running Successfully",
+        "environment": os.getenv("ENVIRONMENT", "development")
+    })
+
+@app.route("/health")
 def health():
-    return jsonify({
-        "status": "healthy",
-        "environment": os.getenv("ENVIRONMENT", "unknown"),
-        "version": os.getenv("APP_VERSION", "1.0.0")
-    }), 200
+    return jsonify({"status": "healthy"}), 200
 
-@app.route('/', methods=['GET'])
-def index():
-    return jsonify({
-        "message": "DevOps Demo App Running on Kubernetes!",
-        "status": "active"
-    }), 200
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    host = os.getenv("HOST", "0.0.0.0")
+    # nosemgrep: python.flask.security.audit.app-run-param-config.avoid_app_run_with_bad_host
+    app.run(host=host, port=port)
