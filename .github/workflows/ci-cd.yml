@@ -72,9 +72,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -82,14 +79,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build Local Image for Vulnerability Scanning
-        uses: docker/build-push-action@v5
-        with:
-          context: CloudForge
-          load: true
-          provenance: false
-          sbom: false
-          tags: local-scan-target:${{ github.sha }}
+      - name: Build Clean Container Image
+        run: |
+          docker build -t local-scan-target:${{ github.sha }} CloudForge
 
       - name: Run Trivy Container Image Scan
         uses: aquasecurity/trivy-action@master
@@ -100,16 +92,13 @@ jobs:
           ignore-unfixed: true
           severity: 'CRITICAL,HIGH'
 
-      - name: Push Verified Docker Image
-        uses: docker/build-push-action@v5
-        with:
-          context: CloudForge
-          push: true
-          provenance: false
-          sbom: false
-          tags: |
-            ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
-            ghcr.io/${{ github.repository }}:latest
+      - name: Tag and Push Verified Docker Image
+        run: |
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          docker tag local-scan-target:${{ github.sha }} ghcr.io/${REPO_LOWER}:sha-${{ github.sha }}
+          docker tag local-scan-target:${{ github.sha }} ghcr.io/${REPO_LOWER}:latest
+          docker push ghcr.io/${REPO_LOWER}:sha-${{ github.sha }}
+          docker push ghcr.io/${REPO_LOWER}:latest
 
   deploy:
     needs: build-and-publish
