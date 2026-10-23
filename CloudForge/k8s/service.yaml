@@ -3,12 +3,17 @@ kind: Service
 metadata:
   name: demo-app-service
   namespace: devops-demo
+  labels:
+    app: demo-app
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+    prometheus.io/port: "5000"
 spec:
-  type: LoadBalancer
-  ports:
-  - port: 80
-    targetPort: 5000
-    protocol: TCP
-    name: http
+  type: ClusterIP
   selector:
     app: demo-app
+  ports:
+    - name: http
+      port: 80
+      targetPort: 5000
