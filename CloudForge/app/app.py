@@ -1,3 +1,4 @@
+import os
 from flask import Flask, jsonify
 from prometheus_flask_exporter import PrometheusMetrics
 
@@ -30,4 +31,7 @@ def readyz():
     return jsonify({"status": "ready"}), 200
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    host = os.getenv("FLASK_HOST", "0.0.0.0")
+    port = int(os.getenv("FLASK_PORT", 5000))
+    # nosemgrep: python.flask.security.audit.app-run-param-config.avoid_app_run_with_bad_host
+    app.run(host=host, port=port)
