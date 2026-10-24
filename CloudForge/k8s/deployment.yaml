@@ -6,7 +6,12 @@ metadata:
   labels:
     app: demo-app
 spec:
-  replicas: 1
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: demo-app
@@ -20,42 +25,52 @@ spec:
         runAsUser: 10001
         runAsGroup: 10001
         fsGroup: 10001
-        seccompProfile:
-          type: RuntimeDefault
       containers:
-        - name: app
-          image: ghcr.io/gosavidevashish/Internship-Projects:latest
-          imagePullPolicy: Always
+        - name: demo-app
+          image: demo-app:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+              name: http
           securityContext:
             allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: false
             capabilities:
               drop:
                 - ALL
-          ports:
-            - name: http
-              containerPort: 5000
-          env:
-            - name: ENVIRONMENT
-              valueFrom:
-                configMapKeyRef:
-                  name: app-config
-                  key: ENVIRONMENT
-            - name: DEMO_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: app-secret
-                  key: DEMO_API_KEY
+
+          # 1. Startup Probe: gives initial boot time before liveness takes over
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: 5000
+            initialDelaySeconds: 2
+            periodSeconds: 3
+            failureThreshold: 10
+
+          # 2. Liveness Probe: restarts container if deadlock or crash occurs
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 5000
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          # 3. Readiness Probe: pulls container from service traffic if failing
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 5000
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 2
+
+          # Resource governance (prevents noisy-neighbor / OOM crashes)
           resources:
-            limits:
-              cpu: "500m"
-              memory: "256Mi"
             requests:
-              cpu: "100m"
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
               memory: "128Mi"
-          volumeMounts:
-            - name: tmp-volume
-              mountPath: /tmp
-      volumes:
-        - name: tmp-volume
-          emptyDir: {}
