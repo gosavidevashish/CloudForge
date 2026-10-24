@@ -122,17 +122,31 @@ jobs:
       - name: Deploy Manifests to Local Kubernetes
         shell: powershell
         run: |
+          Write-Host "Applying Kubernetes manifests..."
           kubectl apply -f CloudForge/k8s/namespace.yaml
           kubectl apply -f CloudForge/k8s/configmap.yaml
           kubectl apply -f CloudForge/k8s/secret.example.yaml
           kubectl apply -f CloudForge/k8s/deployment.yaml
           kubectl apply -f CloudForge/k8s/service.yaml
-          if (Test-Path CloudForge/k8s/ingress.yaml) { kubectl apply -f CloudForge/k8s/ingress.yaml }
+          if (Test-Path CloudForge/k8s/ingress.yaml) { 
+            kubectl apply -f CloudForge/k8s/ingress.yaml 
+          }
 
           $image = "ghcr.io/$($env:GITHUB_REPOSITORY.ToLower()):sha-$env:GITHUB_SHA"
+          Write-Host "Updating container 'app' image to $image..."
           kubectl set image deployment/demo-app app=$image -n devops-demo
 
-      - name: Verify Kubernetes Rollout
+      - name: Verify Kubernetes Rollout with Auto-Rollback
         shell: powershell
         run: |
-          kubectl rollout status deployment/demo-app -n devops-demo --timeout=120s
+          Write-Host "Monitoring rollout status (timeout: 90s)..."
+          kubectl rollout status deployment/demo-app -n devops-demo --timeout=90s
+          
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Deployment rollout failed or timed out! Initiating automatic rollback..."
+            kubectl rollout undo deployment/demo-app -n devops-demo
+            kubectl rollout status deployment/demo-app -n devops-demo --timeout=60s
+            exit 1
+          }
+          
+          Write-Host "Deployment rollout completed and verified successfully."
