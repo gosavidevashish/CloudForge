@@ -3,7 +3,7 @@ from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
 
-# Prometheus metrics setup
+# Prometheus metrics instrumentation
 metrics = PrometheusMetrics(app)
 metrics.info("app_info", "Application info", version="1.0.0")
 
@@ -18,9 +18,10 @@ def fail():
     return jsonify({"error": "Resource not found"}), 404
 
 # --- Health Check Endpoints ---
+@app.route("/health", methods=["GET"])
 @app.route("/healthz", methods=["GET"])
 def healthz():
-    """Liveness probe: confirms the process is alive and responsive."""
+    """Liveness probe & general health check."""
     return jsonify({"status": "healthy"}), 200
 
 @app.route("/readyz", methods=["GET"])
