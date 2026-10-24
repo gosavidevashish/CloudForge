@@ -26,7 +26,7 @@ spec:
         runAsGroup: 10001
         fsGroup: 10001
       containers:
-        - name: demo-app
+        - name: app
           image: demo-app:latest
           imagePullPolicy: IfNotPresent
           ports:
@@ -38,13 +38,9 @@ spec:
             capabilities:
               drop:
                 - ALL
-
-          # Writable volume for temporary runtime files
           volumeMounts:
             - mountPath: /tmp
               name: tmp-volume
-
-          # 1. Startup Probe: gives initial boot time before liveness takes over
           startupProbe:
             httpGet:
               path: /healthz
@@ -52,8 +48,6 @@ spec:
             initialDelaySeconds: 2
             periodSeconds: 3
             failureThreshold: 10
-
-          # 2. Liveness Probe: restarts container if deadlock or crash occurs
           livenessProbe:
             httpGet:
               path: /healthz
@@ -61,8 +55,6 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 2
             failureThreshold: 3
-
-          # 3. Readiness Probe: pulls container from service traffic if failing
           readinessProbe:
             httpGet:
               path: /readyz
@@ -70,8 +62,6 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 2
             failureThreshold: 2
-
-          # Resource limits to prevent noisy neighbors
           resources:
             requests:
               cpu: "50m"
@@ -79,7 +69,6 @@ spec:
             limits:
               cpu: "250m"
               memory: "128Mi"
-
       volumes:
         - name: tmp-volume
           emptyDir: {}
