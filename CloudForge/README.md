@@ -1,4 +1,4 @@
-# DevSecOps & Kubernetes End-to-End Demo
+# DevSecOps & Kubernetes End-to-End Demo.
 
 This repository contains the complete codebase, Docker setup, Kubernetes manifests, and GitHub Actions CI/CD automation pipeline.
 
