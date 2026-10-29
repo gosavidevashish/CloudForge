@@ -20,7 +20,7 @@ spec:
         image: ghcr.io/gosavidevashish/cloudforge/internship-projects:latest
         securityContext:
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: false
+          readOnlyRootFilesystem: true   # <--- Isko true kar diya hai
           capabilities:
             drop:
               - ALL
