@@ -12,10 +12,20 @@ An end-to-end Cloud-Native DevSecOps platform automating the build, security sca
 ## 📝 Overview
 **CloudForge** is a production-grade DevSecOps reference architecture designed to eliminate manual deployment bottlenecks, unverified container releases, and infrastructure blind spots. It integrates automated GitHub Actions workflows with shift-left **Trivy** security gates to ensure only vulnerability-free, hardened containers reach the Kubernetes cluster. Once deployed, **Prometheus** and **Grafana** provide full-stack visibility into application traffic, latency, and pod-level resource consumption.
 
-### 🖼️ Demo / Screenshots
-> Visual overview of the CI/CD pipeline execution, Kubernetes rollout, and real-time Grafana telemetry dashboards.
+### 🖼️ Demo & Architecture Screenshots
 
-![Grafana Dashboard](monitoring/dashboards/grafana-screenshot.png)
+| 🔄 Automated CI/CD Pipeline | 🛡️ Trivy DevSecOps Scan (0 Issues) |
+| :---: | :---: |
+| ![CI/CD Pipeline](screenshots/pipeline.png) | ![Trivy Scan](screenshots/trivy-scan.png) |
+
+| 📊 Grafana Real-Time Observability | ☸️ Kubernetes Cluster & Pod Status |
+| :---: | :---: |
+| ![Grafana Dashboard](screenshots/grafana.png) | ![Kubernetes Status](screenshots/k8s-cluster.png) |
+
+| 🌐 Live Microservice Output |
+| :---: |
+| ![App Response](screenshots/app-response.png) |
+
 
 🔗 **[Live Demo / Repository Link](https://github.com/gosavidevashish/CloudForge)**
 
