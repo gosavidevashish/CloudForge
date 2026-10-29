@@ -3,17 +3,8 @@ kind: Deployment
 metadata:
   name: demo-app
   namespace: devops-demo
-  labels:
-    app: demo-app
 spec:
   replicas: 2
-  progressDeadlineSeconds: 120
-  revisionHistoryLimit: 10
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
   selector:
     matchLabels:
       app: demo-app
@@ -22,55 +13,27 @@ spec:
       labels:
         app: demo-app
     spec:
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 10001
-        runAsGroup: 10001
-        fsGroup: 10001
       containers:
-        - name: app
-          image: demo-app:latest
-          imagePullPolicy: IfNotPresent
-          ports:
-            - containerPort: 5000
-              name: http
-          securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop:
-                - ALL
-          volumeMounts:
-            - mountPath: /tmp
-              name: tmp-volume
-          startupProbe:
-            httpGet:
-              path: /healthz
-              port: 5000
-            initialDelaySeconds: 2
-            periodSeconds: 3
-            failureThreshold: 10
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: 5000
-            periodSeconds: 10
-            timeoutSeconds: 2
-            failureThreshold: 3
-          readinessProbe:
-            httpGet:
-              path: /readyz
-              port: 5000
-            periodSeconds: 5
-            timeoutSeconds: 2
-            failureThreshold: 2
-          resources:
-            requests:
-              cpu: "50m"
-              memory: "64Mi"
-            limits:
-              cpu: "250m"
-              memory: "128Mi"
-      volumes:
-        - name: tmp-volume
-          emptyDir: {}
+      - name: app
+        image: ghcr.io/gosavidevashish/cloudforge/internship-projects:latest
+        ports:
+        - containerPort: 5000
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 15
