@@ -13,9 +13,17 @@ spec:
       labels:
         app: demo-app
     spec:
+      securityContext:
+        runAsNonRoot: false
       containers:
       - name: app
         image: ghcr.io/gosavidevashish/cloudforge/internship-projects:latest
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+              - ALL
         ports:
         - containerPort: 5000
         resources:
