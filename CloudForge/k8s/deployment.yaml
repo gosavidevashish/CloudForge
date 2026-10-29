@@ -5,6 +5,11 @@ metadata:
   namespace: devops-demo
 spec:
   replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: demo-app
@@ -13,19 +18,23 @@ spec:
       labels:
         app: demo-app
     spec:
+      terminationGracePeriodSeconds: 5
       securityContext:
         runAsNonRoot: false
       containers:
       - name: app
-        image: ghcr.io/gosavidevashish/cloudforge/internship-projects:latest
+        image: ghcr.io/gosavidevashish/cloudforge:latest
         securityContext:
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true   # <--- Isko true kar diya hai
+          readOnlyRootFilesystem: true
           capabilities:
             drop:
               - ALL
         ports:
         - containerPort: 5000
+        volumeMounts:
+        - name: tmp-volume
+          mountPath: /tmp
         resources:
           limits:
             cpu: "500m"
@@ -37,11 +46,14 @@ spec:
           httpGet:
             path: /healthz
             port: 5000
-          initialDelaySeconds: 5
-          periodSeconds: 10
+          initialDelaySeconds: 2
+          periodSeconds: 5
         livenessProbe:
           httpGet:
             path: /healthz
             port: 5000
-          initialDelaySeconds: 10
-          periodSeconds: 15
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      volumes:
+      - name: tmp-volume
+        emptyDir: {}
