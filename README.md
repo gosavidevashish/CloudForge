@@ -5,7 +5,7 @@ An end-to-end Cloud-Native DevSecOps platform automating the build, security sca
 [![CI/CD Pipeline](https://img.shields.io/badge/CI%2FCD%20Pipeline-Passing-brightgreen?logo=github)](https://github.com/gosavidevashish/CloudForge/actions)
 [![Security: Trivy](https://img.shields.io/badge/Security-Trivy%20Scanned-yellow?logo=aquasecurity)](#)
 [![Kubernetes](https://img.shields.io/badge/Orchestration-Kubernetes-326CE5?logo=kubernetes&logoColor=white)](#)
-[![License: Unlicense](https://img.shields.io/badge/license-Unlicense-orange.svg)](https://unlicense.org/)
+[![License: Unlicense](https://img.shields.io/badge/License-Unlicense-orange.svg)](https://unlicense.org/)
 
 ---
 
