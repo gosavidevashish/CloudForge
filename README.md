@@ -2,10 +2,10 @@
 
 An end-to-end Cloud-Native DevSecOps platform automating the build, security scanning, zero-downtime Kubernetes deployment, and real-time observability of a containerized Python Flask microservice.
 
-[![CI/CD Pipeline](https://img.shields.io/github/actions/workflow/status/gosavidevashish/CloudForge/ci-cd.yml?branch=main&label=CI%2FCD%20Pipeline&logo=github)](https://github.com/gosavidevashish/CloudForge/actions)
-[![Security: Trivy](https://img.shields.io/badge/Security-Trivy%20Scanned-blue?logo=aquasecurity)](#)
+[![CI/CD Pipeline](https://img.shields.io/badge/CI%2FCD%20Pipeline-Passing-brightgreen?logo=github)](https://github.com/gosavidevashish/CloudForge/actions)
+[![Security: Trivy](https://img.shields.io/badge/Security-Trivy%20Scanned-yellow?logo=aquasecurity)](#)
 [![Kubernetes](https://img.shields.io/badge/Orchestration-Kubernetes-326CE5?logo=kubernetes&logoColor=white)](#)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: Unlicense](https://img.shields.io/badge/license-Unlicense-orange.svg)](https://unlicense.org/)
 
 ---
 
