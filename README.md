@@ -14,20 +14,23 @@ An end-to-end Cloud-Native DevSecOps platform automating the build, security sca
 
 ### 🖼️ Demo & Architecture Screenshots
 
-| 🔄 Automated CI/CD Pipeline | 🛡️ Trivy DevSecOps Scan (0 Issues) |
-| :---: | :---: |
-| ![CI/CD Pipeline](screenshots/pipeline.png) | ![Trivy Scan](screenshots/trivy-scan.png) |
+#### 🔄 Automated CI/CD Pipeline
+<img width="1412" height="300" alt="Screenshot 2026-11-01 021438" src="https://github.com/user-attachments/assets/fdf58fab-01f2-4c1f-9cc1-bf7f547fafa9" />
 
-| 📊 Grafana Real-Time Observability | ☸️ Kubernetes Cluster & Pod Status |
-| :---: | :---: |
-| ![Grafana Dashboard](screenshots/grafana.png) | ![Kubernetes Status](screenshots/k8s-cluster.png) |
+#### 🛡️ Trivy DevSecOps Scan (0 Issues)
+<img width="737" height="522" alt="Screenshot 2026-11-01 021654" src="https://github.com/user-attachments/assets/f2b7e167-dd00-45ff-86eb-84b08c23b8b2" />
 
-| 🌐 Live Microservice Output |
-| :---: |
-| ![App Response](screenshots/app-response.png) |
+#### 📊 Grafana Real-Time Observability
+<img width="1510" height="902" alt="Screenshot 2026-11-01 022614" src="https://github.com/user-attachments/assets/715c451d-9786-46e9-8701-0691ffa839f6" />
 
+#### ☸️ Kubernetes Cluster & Pod Status
+<img width="780" height="67" alt="Screenshot 2026-11-01 023313" src="https://github.com/user-attachments/assets/a2000a48-5522-40c9-b021-a6da9264c495" />
 
-🔗 **[Live Demo / Repository Link](https://github.com/gosavidevashish/CloudForge)**
+#### 🌐 Live Microservice Output (`/`)
+<img width="1370" height="123" alt="Screenshot 2026-11-01 023431" src="https://github.com/user-attachments/assets/cc537b7a-48e7-4ee0-897e-3454df7e0983" />
+
+#### ❤️ Health Probe Output (`/health`)
+<img width="1370" height="123" alt="Screenshot 2026-11-01 023411" src="https://github.com/user-attachments/assets/50d40adc-020f-4483-ae40-0ea40268d9ec" />
 
 ---
 
